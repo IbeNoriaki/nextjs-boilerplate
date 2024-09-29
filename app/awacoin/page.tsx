@@ -1,6 +1,3 @@
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Coffee, Wine, TrendingUp } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
 
@@ -44,14 +41,14 @@ export default function NFTStyleDrinkTickets() {
           <header className="bg-gray-900 text-white shadow-md w-full sticky top-0 z-10 px-4 py-3">
             <div className="flex items-center justify-between">
               <Link href="/" className="text-lg font-bold flex items-center">
-                <TrendingUp className="h-5 w-5 mr-1 text-blue-400" />
+                <span className="h-5 w-5 mr-1 text-blue-400">↗</span>
                 <span className="bg-gradient-to-r from-blue-400 to-purple-500 text-transparent bg-clip-text">
                   Drink NFTs
                 </span>
               </Link>
-              <Button variant="ghost" size="sm" className="text-blue-400 hover:bg-gray-800">
+              <button className="text-blue-400 hover:bg-gray-800 px-3 py-1 rounded">
                 接続
-              </Button>
+              </button>
             </div>
           </header>
 
@@ -61,7 +58,7 @@ export default function NFTStyleDrinkTickets() {
             </h1>
             <div className="grid grid-cols-2 gap-3">
               {tickets.map((ticket, index) => (
-                <Card key={index} className="bg-gray-800 border-gray-700 overflow-hidden transform transition-all duration-300 hover:scale-105 hover:shadow-2xl">
+                <div key={index} className="bg-gray-800 border border-gray-700 rounded-lg overflow-hidden transform transition-all duration-300 hover:scale-105 hover:shadow-2xl">
                   <Image
                     src={ticket.image}
                     alt={ticket.name}
@@ -69,26 +66,26 @@ export default function NFTStyleDrinkTickets() {
                     height={400}
                     className="w-full h-40 object-cover"
                   />
-                  <CardHeader className="p-2">
-                    <CardTitle className="text-sm text-white flex items-center justify-between">
+                  <div className="p-2">
+                    <div className="text-sm text-white flex items-center justify-between">
                       <span>{ticket.name}</span>
                       {ticket.type === 'drink' ? (
-                        <Coffee className="h-4 w-4 text-blue-400" />
+                        <span className="h-4 w-4 text-blue-400">☕</span>
                       ) : (
-                        <Wine className="h-4 w-4 text-purple-400" />
+                        <span className="h-4 w-4 text-purple-400">🍷</span>
                       )}
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="p-2 text-center">
+                    </div>
+                  </div>
+                  <div className="p-2 text-center">
                     <p className="text-xs text-gray-400">{ticket.expiry}まで</p>
                     <p className="text-lg font-bold mt-1 text-green-400">{(ticket.price / 1000).toFixed(3)} ETH</p>
-                  </CardContent>
-                  <CardFooter className="p-2">
-                    <Button className="w-full bg-blue-500 hover:bg-blue-600 text-white text-xs py-1 px-2 rounded-full transition-all duration-300">
+                  </div>
+                  <div className="p-2">
+                    <button className="w-full bg-blue-500 hover:bg-blue-600 text-white text-xs py-1 px-2 rounded-full transition-all duration-300">
                       今すぐ購入
-                    </Button>
-                  </CardFooter>
-                </Card>
+                    </button>
+                  </div>
+                </div>
               ))}
             </div>
           </main>
