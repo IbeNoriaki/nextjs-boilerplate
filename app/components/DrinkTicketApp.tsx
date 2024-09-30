@@ -9,10 +9,15 @@ import { AlertCircle, GlassWater, Wine, Plus, Minus } from 'lucide-react'
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import confetti from 'canvas-confetti'
 
-// プロパティの定義を削除
-interface DrinkTicketAppProps {}
+// Ticket インターフェースを定義
+interface Ticket {
+  price: number;
+  quantity: number;
+  icon: React.ReactElement;
+  name: string;
+}
 
-const DrinkTicketApp: React.FC<DrinkTicketAppProps> = () => {
+const DrinkTicketApp: React.FC = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [tickets, setTickets] = useState<{ [key: string]: Ticket }>({
     '1000': { price: 1000, quantity: 0, icon: <GlassWater className="h-6 w-6" aria-hidden="true" />, name: 'ドリンク' },
@@ -100,10 +105,7 @@ const DrinkTicketApp: React.FC<DrinkTicketAppProps> = () => {
                         animate={{ rotate: [0, 360] }}
                         transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
                       >
-                        {React.isValidElement(ticket.icon) 
-                          ? React.cloneElement(ticket.icon, { className: 'h-6 w-6 text-black' })
-                          : ticket.icon
-                        }
+                        {React.cloneElement(ticket.icon, { className: 'h-6 w-6 text-black' })}
                       </motion.div>
                       <div className="flex-shrink-0">
                         <Label className="text-base sm:text-lg font-semibold text-white whitespace-nowrap">{ticket.name}チケット</Label>
