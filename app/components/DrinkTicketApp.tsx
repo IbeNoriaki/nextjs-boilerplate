@@ -9,16 +9,8 @@ import { AlertCircle, GlassWater, Wine, Plus, Minus } from 'lucide-react'
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import confetti from 'canvas-confetti'
 
-/* eslint-disable @typescript-eslint/no-unused-vars */
-interface DrinkTicketAppProps {
-  buttonClassName?: string;
-  buttonTextClassName?: string;
-}
-
 // プロパティの定義を削除
-interface DrinkTicketAppProps {
-  // buttonClassName と buttonTextClassName を削除
-}
+interface DrinkTicketAppProps {}
 
 const DrinkTicketApp: React.FC<DrinkTicketAppProps> = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false)
