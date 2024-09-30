@@ -15,13 +15,14 @@ interface Ticket {
   icon: React.ReactElement;
   name: string;
   availableQuantity: number;
+  expirationDate: string; // 新しく追加
 }
 
 const DrinkTicketSender: React.FC = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [tickets, setTickets] = useState<{ [key: string]: Ticket }>({
-    '1000': { price: 1000, quantity: 0, icon: <GlassWater className="h-6 w-6" aria-hidden="true" />, name: 'ドリンク', availableQuantity: 7 },
-    '5000': { price: 5000, quantity: 0, icon: <Wine className="h-6 w-6" aria-hidden="true" />, name: 'ボトル', availableQuantity: 8 }
+    '1000': { price: 1000, quantity: 0, icon: <GlassWater className="h-6 w-6" aria-hidden="true" />, name: 'ドリンク', availableQuantity: 7, expirationDate: '2025年6月末' },
+    '5000': { price: 5000, quantity: 0, icon: <Wine className="h-6 w-6" aria-hidden="true" />, name: 'ボトル', availableQuantity: 8, expirationDate: '2025年6月末' }
   })
   const [error, setError] = useState('')
   const [isCreatingLink, setIsCreatingLink] = useState(false)
@@ -121,6 +122,7 @@ const DrinkTicketSender: React.FC = () => {
                         <Label className="text-base sm:text-lg font-semibold text-white whitespace-nowrap">{ticket.name}チケット</Label>
                         <p className="text-sm text-gray-300">{ticket.price}円</p>
                         <p className="text-xs text-gray-400 whitespace-nowrap">残り: {ticket.availableQuantity}枚</p>
+                        <p className="text-xs text-gray-400 whitespace-nowrap">有効期限: {ticket.expirationDate}</p>
                       </div>
                     </div>
                     <div className="flex items-center space-x-2">

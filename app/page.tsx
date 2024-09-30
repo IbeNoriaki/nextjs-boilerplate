@@ -1,16 +1,12 @@
 'use client';
-
 import Image from "next/image";
-
 import { ConnectToReceiveButton } from './components/ConnectToReceiveButton';
 import DrinkTicketApp from './components/DrinkTicketApp';
 import DrinkTicketSender from "./components/drink-ticket-sender";
 import { SpecificTradeInfoPopup } from './components/SpecificTradeInfoPopup';
-
-
 export default function Home() {
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)] bg-black text-white">
+    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)] text-white bg-black">
       <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
         <Image
           src="/asset/awabar_t2c.svg"
@@ -26,13 +22,11 @@ export default function Home() {
               Buy. Share. Connect.
             </code>
           </li>
-          
         </ol>
 
         <div className="flex gap-4 items-center flex-col sm:flex-row">
           <DrinkTicketApp />
           <DrinkTicketSender />
-          
           <ConnectToReceiveButton />
         </div>
       </main>
