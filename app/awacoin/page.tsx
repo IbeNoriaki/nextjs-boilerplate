@@ -81,9 +81,11 @@ export default function NFTStyleDrinkTickets() {
                     <p className="text-lg font-bold mt-1 text-green-400">{(ticket.price / 1000).toFixed(3)} ETH</p>
                   </div>
                   <div className="p-2">
-                    <button className="w-full bg-blue-500 hover:bg-blue-600 text-white text-xs py-1 px-2 rounded-full transition-all duration-300">
-                      今すぐ購入
-                    </button>
+                    <Link href="/awacoin/checkout" className="block w-full">
+                      <button className="w-full bg-blue-500 hover:bg-blue-600 text-white text-xs py-1 px-2 rounded-full transition-all duration-300">
+                        今すぐ購入
+                      </button>
+                    </Link>
                   </div>
                 </div>
               ))}
