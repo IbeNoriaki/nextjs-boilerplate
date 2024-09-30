@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogFooter } from "@/components/ui/dialog"
@@ -9,46 +9,54 @@ import { AlertCircle, GlassWater, Wine, Plus, Minus } from 'lucide-react'
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import confetti from 'canvas-confetti'
 
-// Ticket インターフェースを定義
 interface Ticket {
   price: number;
   quantity: number;
   icon: React.ReactElement;
   name: string;
+  availableQuantity: number;
 }
 
-const DrinkTicketApp: React.FC = () => {
+const DrinkTicketSender: React.FC = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [tickets, setTickets] = useState<{ [key: string]: Ticket }>({
-    '1000': { price: 1000, quantity: 0, icon: <GlassWater className="h-6 w-6" aria-hidden="true" />, name: 'ドリンク' },
-    '5000': { price: 5000, quantity: 0, icon: <Wine className="h-6 w-6" aria-hidden="true" />, name: 'ボトル' }
+    '1000': { price: 1000, quantity: 0, icon: <GlassWater className="h-6 w-6" aria-hidden="true" />, name: 'ドリンク', availableQuantity: 7 },
+    '5000': { price: 5000, quantity: 0, icon: <Wine className="h-6 w-6" aria-hidden="true" />, name: 'ボトル', availableQuantity: 8 }
   })
   const [error, setError] = useState('')
-  const [totalAmount, setTotalAmount] = useState(0)
-  const [isCheckingOut, setIsCheckingOut] = useState(false)
-
-  useEffect(() => {
-    const newTotalAmount = Object.values(tickets).reduce((sum, ticket) => sum + ticket.price * ticket.quantity, 0)
-    setTotalAmount(newTotalAmount)
-  }, [tickets])
+  const [isCreatingLink, setIsCreatingLink] = useState(false)
+  const [activeTicket, setActiveTicket] = useState<string | null>(null)
 
   const handleQuantityChange = (price: string, change: number) => {
     setTickets(prev => {
-      const newQuantity = Math.max(0, prev[price].quantity + change)
-      return {
+      const newQuantity = Math.max(0, Math.min(prev[price].availableQuantity, prev[price].quantity + change))
+      const updatedTickets = {
         ...prev,
         [price]: { ...prev[price], quantity: newQuantity }
       }
+      
+      // Reset the quantity of the other ticket type
+      const otherPrice = price === '1000' ? '5000' : '1000'
+      updatedTickets[otherPrice] = { ...updatedTickets[otherPrice], quantity: 0 }
+
+      // Update activeTicket based on the new quantity
+      if (newQuantity > 0) {
+        setActiveTicket(price)
+      } else if (updatedTickets[otherPrice].quantity === 0) {
+        setActiveTicket(null)
+      }
+
+      return updatedTickets
     })
   }
 
-  const handleCheckout = () => {
+  const handleCreateLink = () => {
     if (Object.values(tickets).every(ticket => ticket.quantity === 0)) {
       setError('少なくとも1枚のチケットを選択してください。')
       return
     }
     setError('')
-    setIsCheckingOut(true)
+    setIsCreatingLink(true)
     setTimeout(() => {
       confetti({
         particleCount: 100,
@@ -56,10 +64,12 @@ const DrinkTicketApp: React.FC = () => {
         origin: { y: 0.6 }
       })
       setTimeout(() => {
-        alert(`合計金額: ${totalAmount}円のチケットを購入しました。`)
+        const selectedTicket = Object.values(tickets).find(ticket => ticket.quantity > 0)
+        alert(`送付リンクが作成されました。${selectedTicket?.name}チケット ${selectedTicket?.quantity}枚`)
         setIsDialogOpen(false)
-        setIsCheckingOut(false)
+        setIsCreatingLink(false)
         setTickets(prev => Object.fromEntries(Object.entries(prev).map(([key, ticket]) => [key, {...ticket, quantity: 0}])))
+        setActiveTicket(null)
       }, 1000)
     }, 500)
   }
@@ -82,9 +92,9 @@ const DrinkTicketApp: React.FC = () => {
             }}
           >
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 8.25h19.5M2.25 9h19.5m-16.5 5.25h6m-6 2.25h3m-3.75 3h15a2.25 2.25 0 002.25-2.25V6.75A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25v10.5A2.25 2.25 0 004.5 19.5z" />
+              <path strokeLinecap="round" strokeLinejoin="round" d="M7.217 10.907a2.25 2.25 0 100 2.186m0-2.186c.18.324.283.696.283 1.093s-.103.77-.283 1.093m0-2.186l9.566-5.314m-9.566 7.5l9.566 5.314m0 0a2.25 2.25 0 103.935 2.186 2.25 2.25 0 00-3.935-2.186zm0-12.814a2.25 2.25 0 103.933-2.185 2.25 2.25 0 00-3.933 2.185z" />
             </svg>
-            Buy Ticket
+            Share Ticket
           </a>
         </motion.div>
       )}
@@ -95,7 +105,7 @@ const DrinkTicketApp: React.FC = () => {
               {Object.entries(tickets).map(([price, ticket]) => (
                 <motion.div
                   key={price}
-                  className="bg-gray-900 p-4 rounded-xl shadow-sm transition duration-300 ease-in-out hover:shadow-md border border-gray-700"
+                  className={`bg-gray-900 p-4 rounded-xl shadow-sm transition duration-300 ease-in-out hover:shadow-md border ${activeTicket === price || activeTicket === null ? 'border-gray-700' : 'border-gray-800 opacity-50'}`}
                   whileHover={{ scale: 1.02 }}
                 >
                   <div className="flex items-center justify-between">
@@ -110,7 +120,7 @@ const DrinkTicketApp: React.FC = () => {
                       <div className="flex-shrink-0">
                         <Label className="text-base sm:text-lg font-semibold text-white whitespace-nowrap">{ticket.name}チケット</Label>
                         <p className="text-sm text-gray-300">{ticket.price}円</p>
-                        <p className="text-xs text-gray-400 whitespace-nowrap">有効期限: 2025年6月末</p>
+                        <p className="text-xs text-gray-400 whitespace-nowrap">残り: {ticket.availableQuantity}枚</p>
                       </div>
                     </div>
                     <div className="flex items-center space-x-2">
@@ -118,6 +128,7 @@ const DrinkTicketApp: React.FC = () => {
                         onClick={() => handleQuantityChange(price, -1)}
                         className="h-8 w-8 rounded-full p-0 bg-gray-700 hover:bg-gray-600 text-white"
                         aria-label={`${ticket.name}チケットの数量を減らす`}
+                        disabled={activeTicket !== price && activeTicket !== null}
                       >
                         <Minus className="h-4 w-4" />
                       </Button>
@@ -133,11 +144,15 @@ const DrinkTicketApp: React.FC = () => {
                         onClick={() => handleQuantityChange(price, 1)}
                         className="h-8 w-8 rounded-full p-0 bg-[#ffbc04] hover:bg-[#e5a800] text-black"
                         aria-label={`${ticket.name}チケットの数量を増やす`}
+                        disabled={activeTicket !== price && activeTicket !== null}
                       >
                         <Plus className="h-4 w-4" />
                       </Button>
                     </div>
                   </div>
+                  {activeTicket !== null && activeTicket !== price && (
+                    <p className="text-xs text-yellow-500 mt-2">他のチケットが選択されています</p>
+                  )}
                 </motion.div>
               ))}
             </div>
@@ -148,28 +163,20 @@ const DrinkTicketApp: React.FC = () => {
                 <AlertDescription>{error}</AlertDescription>
               </Alert>
             )}
-            <motion.div
-              key={totalAmount}
-              initial={{ scale: 0.8, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              className="mt-6 text-right font-bold text-2xl text-white"
-            >
-              合計金額: {totalAmount}円
-            </motion.div>
             <DialogFooter className="mt-6">
               <Button 
-                onClick={handleCheckout} 
-                className="w-full h-12 text-lg bg-[#ffbc04] hover:bg-[#e5a800] text-black font-semibold rounded-full shadow-lg transition duration-300 ease-in-out transform hover:scale-105"
-                disabled={isCheckingOut}
+                onClick={handleCreateLink} 
+                className="w-full h-10 sm:h-12 text-sm sm:text-base bg-[#ffbc04] hover:bg-[#e5a800] text-black font-semibold rounded-full shadow-lg transition duration-300 ease-in-out transform hover:scale-105"
+                disabled={isCreatingLink}
               >
-                {isCheckingOut ? (
+                {isCreatingLink ? (
                   <motion.div
                     animate={{ rotate: 360 }}
                     transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-                    className="w-6 h-6 border-t-2 border-black rounded-full"
+                    className="w-5 h-5 border-t-2 border-black rounded-full"
                   />
                 ) : (
-                  'チェックアウト'
+                  '送付リンク作成'
                 )}
               </Button>
             </DialogFooter>
@@ -180,4 +187,4 @@ const DrinkTicketApp: React.FC = () => {
   )
 }
 
-export default DrinkTicketApp
+export default DrinkTicketSender

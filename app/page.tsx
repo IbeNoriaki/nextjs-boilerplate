@@ -1,10 +1,12 @@
 'use client';
 
 import Image from "next/image";
-import { ShareTicketButton } from './components/ShareTicketButton';
+
 import { ConnectToReceiveButton } from './components/ConnectToReceiveButton';
 import DrinkTicketApp from './components/DrinkTicketApp';
+import DrinkTicketSender from "./components/drink-ticket-sender";
 import { SpecificTradeInfoPopup } from './components/SpecificTradeInfoPopup';
+
 
 export default function Home() {
   return (
@@ -29,7 +31,8 @@ export default function Home() {
 
         <div className="flex gap-4 items-center flex-col sm:flex-row">
           <DrinkTicketApp />
-          <ShareTicketButton />
+          <DrinkTicketSender />
+          
           <ConnectToReceiveButton />
         </div>
       </main>
