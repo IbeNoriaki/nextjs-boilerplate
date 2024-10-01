@@ -4,6 +4,9 @@ import { ConnectToReceiveButton } from './components/ConnectToReceiveButton';
 import DrinkTicketApp from './components/DrinkTicketApp';
 import DrinkTicketSender from "./components/drink-ticket-sender";
 import { SpecificTradeInfoPopup } from './components/SpecificTradeInfoPopup';
+import StripeTestButton from './components/StripeTestButton';
+import SmaregiTestButton from './components/SmaregiTestButton'; // 新しいコンポーネントをインポート
+
 export default function Home() {
   return (
     <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)] text-white bg-black">
@@ -18,7 +21,7 @@ export default function Home() {
         <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)] text-gray-300">
           <li className="mb-2">
             Unlock the social experience:{" "}
-            <code className="bg-white/[.1] px-1 py-0.5 rounded font-semibold text-white">
+            <code className="bg-white/[.1] px-1 py-0.5 rounded font-semibold text-white whitespace-nowrap">
               Buy. Share. Connect.
             </code>
           </li>
@@ -28,6 +31,8 @@ export default function Home() {
           <DrinkTicketApp />
           <DrinkTicketSender />
           <ConnectToReceiveButton />
+          <StripeTestButton /> 
+          <SmaregiTestButton />  {/* 新しいテストボタンを追加 */}
         </div>
       </main>
       <footer className="row-start-3 flex justify-center">

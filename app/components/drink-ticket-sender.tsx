@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label"
 import { AlertCircle, GlassWater, Wine, Plus, Minus } from 'lucide-react'
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import confetti from 'canvas-confetti'
+// import axios from 'axios'  // コメントアウト
 
 interface Ticket {
   price: number;
@@ -51,29 +52,46 @@ const DrinkTicketSender: React.FC = () => {
     })
   }
 
-  const handleCreateLink = () => {
+  const handleCreateLink = async () => {
     if (Object.values(tickets).every(ticket => ticket.quantity === 0)) {
-      setError('少なくとも1枚のチケットを選択してください。')
-      return
+      setError('少なくとも1枚のチケットを選択してください。');
+      return;
     }
-    setError('')
-    setIsCreatingLink(true)
-    setTimeout(() => {
+    setError('');
+    setIsCreatingLink(true);
+
+    try {
+      // 以下の部分をコメントアウト
+      /*
+      // Call your API to send the ticket
+      await axios.post('/api/send-ticket', { tickets: activeTicket });
+
+      // Register transaction in Smaregi
+      await axios.post('/api/register-transaction', {
+        transactionDetails: {
+          // Add necessary transaction details here
+          // Include the shop code for the selected bar
+        }
+      });
+      */
+
       confetti({
         particleCount: 100,
         spread: 70,
         origin: { y: 0.6 }
-      })
-      setTimeout(() => {
-        const selectedTicket = Object.values(tickets).find(ticket => ticket.quantity > 0)
-        alert(`送付リンクが作成されました。${selectedTicket?.name}チケット ${selectedTicket?.quantity}枚`)
-        setIsDialogOpen(false)
-        setIsCreatingLink(false)
-        setTickets(prev => Object.fromEntries(Object.entries(prev).map(([key, ticket]) => [key, {...ticket, quantity: 0}])))
-        setActiveTicket(null)
-      }, 1000)
-    }, 500)
-  }
+      });
+      const selectedTicket = Object.values(tickets).find(ticket => ticket.quantity > 0);
+      alert(`送付リンクが作成されました。${selectedTicket?.name}チケット ${selectedTicket?.quantity}枚`);
+      setIsDialogOpen(false);
+      setTickets(prev => Object.fromEntries(Object.entries(prev).map(([key, ticket]) => [key, {...ticket, quantity: 0}])));
+      setActiveTicket(null);
+    } catch (error) {
+      console.error('Error creating link:', error);
+      setError('リンク作成中にエラーが発生しました。もう一度お試しください。');
+    } finally {
+      setIsCreatingLink(false);
+    }
+  };
 
   return (
     <AnimatePresence>
