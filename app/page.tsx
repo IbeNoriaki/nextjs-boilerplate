@@ -31,8 +31,8 @@ export default function Home() {
           <DrinkTicketApp />
           <DrinkTicketSender />
           <ConnectToReceiveButton />
-          <StripeTestButton /> 
-          <SmaregiTestButton />  {/* 新しいテストボタンを追加 */}
+          {/* <StripeTestButton /> 
+          <SmaregiTestButton />  新しいテストボタンを追加 */}
         </div>
       </main>
       <footer className="row-start-3 flex justify-center">
