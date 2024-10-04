@@ -5,9 +5,6 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: '2024-06-20',
 });
 
-// 以下の2行を削除してください
-// const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!)
-// console.log("Stripe PublishableKey:", process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY)
 
 export default async function handler(
   req: NextApiRequest,

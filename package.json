@@ -23,6 +23,7 @@
     "next": "^14.2.13",
     "react": "^18",
     "react-dom": "^18",
+    "square": "^38.1.0",
     "stripe": "^16.12.0",
     "tailwind-merge": "^2.5.2",
     "tailwindcss-animate": "^1.0.7"

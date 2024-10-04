@@ -5,7 +5,7 @@ import DrinkTicketApp from './components/DrinkTicketApp';
 import DrinkTicketSender from "./components/drink-ticket-sender";
 import { SpecificTradeInfoPopup } from './components/SpecificTradeInfoPopup';
 import StripeTestButton from './components/StripeTestButton';
-import SmaregiTestButton from './components/SmaregiTestButton'; // 新しいコンポーネントをインポート
+import SquareTestButton from './components/SquareTestButton';
 
 export default function Home() {
   return (
@@ -31,8 +31,8 @@ export default function Home() {
           <DrinkTicketApp />
           <DrinkTicketSender />
           <ConnectToReceiveButton />
-          {/* <StripeTestButton /> 
-          <SmaregiTestButton />  新しいテストボタンを追加 */}
+          <StripeTestButton />
+          <SquareTestButton />
         </div>
       </main>
       <footer className="row-start-3 flex justify-center">

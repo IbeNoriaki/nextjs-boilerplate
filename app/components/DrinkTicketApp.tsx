@@ -7,61 +7,92 @@ import { Dialog, DialogContent, DialogFooter } from "@/components/ui/dialog"
 import { Label } from "@/components/ui/label"
 import { AlertCircle, GlassWater, Wine, Plus, Minus } from 'lucide-react'
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
-import confetti from 'canvas-confetti'
+import SquareCheckoutButton from './SquareCheckoutButton'
 
-// Ticket インターフェースを定義
+// 既存の Ticket インターフェース定義をそのまま使用します
 interface Ticket {
+  name: string;
   price: number;
   quantity: number;
-  icon: React.ReactElement;
-  name: string;
 }
 
 const DrinkTicketApp: React.FC = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [tickets, setTickets] = useState<{ [key: string]: Ticket }>({
-    '1000': { price: 1000, quantity: 0, icon: <GlassWater className="h-6 w-6" aria-hidden="true" />, name: 'ドリンク' },
-    '5000': { price: 5000, quantity: 0, icon: <Wine className="h-6 w-6" aria-hidden="true" />, name: 'ボトル' }
+    bottle: { name: 'ボトルチケット', price: 5000, quantity: 0 },
+    glass: { name: 'グラスチケット', price: 1000, quantity: 0 },
   })
-  const [error, setError] = useState('')
+  const [error, setError] = useState<string | null>(null)
   const [totalAmount, setTotalAmount] = useState(0)
   const [isCheckingOut, setIsCheckingOut] = useState(false)
 
   useEffect(() => {
     const newTotalAmount = Object.values(tickets).reduce((sum, ticket) => sum + ticket.price * ticket.quantity, 0)
     setTotalAmount(newTotalAmount)
+
+    // チケットが選択されたらエラーメッセージをクリア
+    if (newTotalAmount > 0) {
+      setError(null)
+    }
   }, [tickets])
 
-  const handleQuantityChange = (price: string, change: number) => {
-    setTickets(prev => {
-      const newQuantity = Math.max(0, prev[price].quantity + change)
-      return {
-        ...prev,
-        [price]: { ...prev[price], quantity: newQuantity }
-      }
-    })
+  const updateQuantity = (ticketKey: string, change: number) => {
+    setTickets(prev => ({
+      ...prev,
+      [ticketKey]: {
+        ...prev[ticketKey],
+        quantity: Math.max(0, prev[ticketKey].quantity + change),
+      },
+    }))
   }
 
-  const handleCheckout = () => {
-    if (Object.values(tickets).every(ticket => ticket.quantity === 0)) {
-      setError('少なくとも1枚のチケットを選択してください。')
+  const calculateTotal = () => {
+    return Object.values(tickets).reduce((total, ticket) => total + ticket.price * ticket.quantity, 0)
+  }
+
+  const handleSquareCheckout = async () => {
+    const selectedTickets = Object.entries(tickets)
+      .filter(([, ticket]) => ticket.quantity > 0)
+      .map(([, ticket]) => ({
+        name: ticket.name,
+        price: ticket.price,
+        quantity: ticket.quantity
+      }))
+
+    const totalAmount = calculateTotal()
+
+    if (totalAmount === 0) {
+      setError('チケットを選択してください')
       return
     }
-    setError('')
+
+    setError(null)
     setIsCheckingOut(true)
-    setTimeout(() => {
-      confetti({
-        particleCount: 100,
-        spread: 70,
-        origin: { y: 0.6 }
+
+    try {
+      const response = await fetch('/api/create-square-payment', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ tickets: selectedTickets, totalAmount }),
       })
-      setTimeout(() => {
-        alert(`合計金額: ${totalAmount}円のチケットを購入しました。`)
-        setIsDialogOpen(false)
-        setIsCheckingOut(false)
-        setTickets(prev => Object.fromEntries(Object.entries(prev).map(([key, ticket]) => [key, {...ticket, quantity: 0}])))
-      }, 1000)
-    }, 500)
+
+      const data = await response.json()
+
+      if (response.ok) {
+        window.location.href = data.checkoutUrl;
+      } else {
+        setError(data.error || 'チェックアウトURLの取得に失敗しました');
+      }
+    } catch (err) {
+      console.error('チェックアウトプロセス中にエラーが発生しました:', err)
+      setError('チェックアウトプロセス中にエラーが発生しました')
+    }
+  }
+
+  const formatAmount = (amount: number) => {
+    return amount.toLocaleString('ja-JP')
   }
 
   return (
@@ -90,34 +121,34 @@ const DrinkTicketApp: React.FC = () => {
       )}
       {isDialogOpen && (
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-          <DialogContent className="sm:max-w-[425px] bg-black text-white rounded-2xl shadow-2xl overflow-hidden">
+          <DialogContent className="sm:max-w-[500px] md:max-w-[600px] bg-black text-white rounded-2xl shadow-2xl overflow-hidden">
             <div className="py-6 space-y-6">
-              {Object.entries(tickets).map(([price, ticket]) => (
+              {Object.entries(tickets).map(([key, ticket]) => (
                 <motion.div
-                  key={price}
+                  key={key}
                   className="bg-gray-900 p-4 rounded-xl shadow-sm transition duration-300 ease-in-out hover:shadow-md border border-gray-700"
                   whileHover={{ scale: 1.02 }}
                 >
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-4">
                       <motion.div
-                        className="bg-[#ffbc04] p-3 rounded-full"
+                        className="bg-[#ffbc04] p-3 rounded-full flex-shrink-0"
                         animate={{ rotate: [0, 360] }}
                         transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
                       >
-                        {React.cloneElement(ticket.icon, { className: 'h-6 w-6 text-black' })}
+                        {key === 'bottle' ? <Wine className="h-6 w-6 text-black" /> : <GlassWater className="h-6 w-6 text-black" />}
                       </motion.div>
-                      <div className="flex-shrink-0">
-                        <Label className="text-base sm:text-lg font-semibold text-white whitespace-nowrap">{ticket.name}チケット</Label>
-                        <p className="text-sm text-gray-300">{ticket.price}円</p>
+                      <div>
+                        <Label className="text-base sm:text-lg font-semibold text-white whitespace-nowrap">{ticket.name}</Label>
+                        <p className="text-sm text-gray-300">{formatAmount(ticket.price)}円</p>
                         <p className="text-xs text-gray-400 whitespace-nowrap">有効期限: 2025年6月末</p>
                       </div>
                     </div>
                     <div className="flex items-center space-x-2">
                       <Button
-                        onClick={() => handleQuantityChange(price, -1)}
+                        onClick={() => updateQuantity(key, -1)}
                         className="h-8 w-8 rounded-full p-0 bg-gray-700 hover:bg-gray-600 text-white"
-                        aria-label={`${ticket.name}チケットの数量を減らす`}
+                        aria-label={`${ticket.name}の数量を減らす`}
                       >
                         <Minus className="h-4 w-4" />
                       </Button>
@@ -130,9 +161,9 @@ const DrinkTicketApp: React.FC = () => {
                         {ticket.quantity}
                       </motion.span>
                       <Button
-                        onClick={() => handleQuantityChange(price, 1)}
+                        onClick={() => updateQuantity(key, 1)}
                         className="h-8 w-8 rounded-full p-0 bg-[#ffbc04] hover:bg-[#e5a800] text-black"
-                        aria-label={`${ticket.name}チケットの数量を増やす`}
+                        aria-label={`${ticket.name}の数量を増やす`}
                       >
                         <Plus className="h-4 w-4" />
                       </Button>
@@ -148,30 +179,13 @@ const DrinkTicketApp: React.FC = () => {
                 <AlertDescription>{error}</AlertDescription>
               </Alert>
             )}
-            <motion.div
-              key={totalAmount}
-              initial={{ scale: 0.8, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              className="mt-6 text-right font-bold text-2xl text-white"
-            >
-              合計金額: {totalAmount}円
-            </motion.div>
             <DialogFooter className="mt-6">
-              <Button 
-                onClick={handleCheckout} 
-                className="w-full h-12 text-lg bg-[#ffbc04] hover:bg-[#e5a800] text-black font-semibold rounded-full shadow-lg transition duration-300 ease-in-out transform hover:scale-105"
-                disabled={isCheckingOut}
-              >
-                {isCheckingOut ? (
-                  <motion.div
-                    animate={{ rotate: 360 }}
-                    transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-                    className="w-6 h-6 border-t-2 border-black rounded-full"
-                  />
-                ) : (
-                  'チェックアウト'
-                )}
-              </Button>
+              <SquareCheckoutButton
+                totalAmount={totalAmount}
+                isCheckingOut={isCheckingOut}
+                onCheckout={handleSquareCheckout}
+                formatAmount={formatAmount}
+              />
             </DialogFooter>
           </DialogContent>
         </Dialog>
