@@ -1,3 +1,4 @@
+import { NextRequest, NextResponse } from 'next/server';
 import { Client, Environment } from 'square';
 
 const client = new Client({
@@ -5,50 +6,37 @@ const client = new Client({
   environment: Environment.Sandbox,
 });
 
-const { ordersApi } = client;
+// BigIntを含むオブジェクトを安全にシリアライズするためのヘルパー関数
+function safeStringify(obj: any) {
+  return JSON.stringify(obj, (_, value) =>
+    typeof value === 'bigint' ? value.toString() : value
+  );
+}
 
-export async function GET(request: Request) {
-  const { searchParams } = new URL(request.url);
-  const orderId = searchParams.get('order_id');
-
+export async function GET(req: NextRequest) {
+  const orderId = req.nextUrl.searchParams.get('order_id');
+  
   if (!orderId) {
-    return new Response(JSON.stringify({ error: 'Order ID is required' }), {
-      status: 400,
-      headers: { 'Content-Type': 'application/json' },
-    });
+    return NextResponse.json({ error: 'Order ID is required' }, { status: 400 });
   }
 
   try {
-    const response = await ordersApi.retrieveOrder(orderId);
+    const response = await client.ordersApi.retrieveOrder(orderId);
     
-    if (!response.result.order) {
-      throw new Error('Order not found');
+    if (response.result && response.result.order) {
+      const order = response.result.order;
+      // BigIntを含む可能性のあるデータを安全にシリアライズ
+      const safeOrder = JSON.parse(safeStringify({
+        status: order.state,
+        totalMoney: order.totalMoney,
+        // 必要に応じて他の情報も追加
+      }));
+      return NextResponse.json(safeOrder);
+    } else {
+      return NextResponse.json({ error: 'Order not found' }, { status: 404 });
     }
-
-    const order = response.result.order;
-    const paymentStatus = order.state;
-    const totalAmount = order.totalMoney?.amount 
-      ? Number(order.totalMoney.amount) / 100 
-      : 0; // Convert cents to dollars/yen and ensure it's a number
-    const currency = order.totalMoney?.currency || 'Unknown';
-    const createdAt = order.createdAt;
-
-    return new Response(JSON.stringify({
-      paymentStatus,
-      totalAmount,
-      currency,
-      createdAt,
-      orderId
-    }), {
-      status: 200,
-      headers: { 'Content-Type': 'application/json' },
-    });
   } catch (error) {
     console.error('Error checking payment status:', error);
-    const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
-    return new Response(JSON.stringify({ error: 'Failed to check payment status', details: errorMessage }), {
-      status: 500,
-      headers: { 'Content-Type': 'application/json' },
-    });
+    return NextResponse.json({ error: 'Failed to check payment status' }, { status: 500 });
   }
 }

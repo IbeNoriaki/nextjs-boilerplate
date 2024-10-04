@@ -1,11 +1,12 @@
 'use client';
+import React from 'react';
 import Image from "next/image";
 import { ConnectToReceiveButton } from './components/ConnectToReceiveButton';
 import DrinkTicketApp from './components/DrinkTicketApp';
 import DrinkTicketSender from "./components/drink-ticket-sender";
 import { SpecificTradeInfoPopup } from './components/SpecificTradeInfoPopup';
-import StripeTestButton from './components/StripeTestButton';
-import SquareTestButton from './components/SquareTestButton';
+
+
 
 export default function Home() {
   return (
@@ -31,8 +32,8 @@ export default function Home() {
           <DrinkTicketApp />
           <DrinkTicketSender />
           <ConnectToReceiveButton />
-          <StripeTestButton />
-          <SquareTestButton />
+        
+         
         </div>
       </main>
       <footer className="row-start-3 flex justify-center">
