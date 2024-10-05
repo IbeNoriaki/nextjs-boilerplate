@@ -22,7 +22,7 @@ export async function POST(request: Request) {
     const body = await request.json();
     console.log('Request body:', body);
 
-    const { tickets, totalAmount } = body;
+    const { tickets, totalAmount, userId, email } = body; // emailを追加
 
     const lineItems = tickets.map((ticket: any) => ({
       quantity: ticket.quantity.toString(),
@@ -38,14 +38,24 @@ export async function POST(request: Request) {
 
     console.log('Creating payment link with:', { locationId, idempotencyKey, lineItems, totalAmount });
 
-    // 最初の Payment Link 作成
-    const response = await checkoutApi.createPaymentLink({
+    // Payment Link 作成
+    const paymentLinkParams: any = {
       idempotencyKey,
       order: {
         locationId,
         lineItems
-      }
-    });
+      },
+      paymentNote: `User ID: ${userId}`,
+    };
+
+    // emailが提供されている場合のみprePopulatedDataを追加
+    if (email && email.includes('@')) {
+      paymentLinkParams.prePopulatedData = {
+        buyerEmail: email,
+      };
+    }
+
+    const response = await checkoutApi.createPaymentLink(paymentLinkParams);
 
     console.log('Initial payment link created:', response.result);
 

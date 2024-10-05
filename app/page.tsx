@@ -5,8 +5,7 @@ import { ConnectToReceiveButton } from './components/ConnectToReceiveButton';
 import DrinkTicketApp from './components/DrinkTicketApp';
 import DrinkTicketSender from "./components/drink-ticket-sender";
 import { SpecificTradeInfoPopup } from './components/SpecificTradeInfoPopup';
-
-
+import UseTicketButton from './components/use-ticket-button';  // この行を修正
 
 export default function Home() {
   return (
@@ -31,9 +30,8 @@ export default function Home() {
         <div className="flex gap-4 items-center flex-col sm:flex-row">
           <DrinkTicketApp />
           <DrinkTicketSender />
+          <UseTicketButton />
           <ConnectToReceiveButton />
-        
-         
         </div>
       </main>
       <footer className="row-start-3 flex justify-center">
