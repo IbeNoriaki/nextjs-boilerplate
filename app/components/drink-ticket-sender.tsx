@@ -129,8 +129,9 @@ const DrinkTicketSender: React.FC = () => {
                           </motion.div>
                           <div>
                             <Label className="text-base sm:text-lg font-semibold text-white">{ticket.name}</Label>
-                            <p className="text-sm text-gray-300">{ticket.price}円</p>
+                            <p className="text-sm text-gray-300">{ticket.price.toLocaleString()}円</p>
                             <p className="text-xs text-gray-400">期限: {ticket.expirationDate}</p>
+                            <p className="text-xs text-gray-400">保有数: {ticket.availableQuantity}枚</p>
                           </div>
                         </div>
                         <div className="flex flex-col items-end space-y-2">

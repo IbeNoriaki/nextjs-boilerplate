@@ -8,21 +8,24 @@ import { Label } from "@/components/ui/label"
 import { AlertCircle, GlassWater, Wine, Plus, Minus } from 'lucide-react'
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import SquareCheckoutButton from './SquareCheckoutButton'
-import { useRouter } from 'next/navigation'
-import DrinkTicketSender from './drink-ticket-sender'
+
+
 
 // 既存の Ticket インターフェース定義をそのまま使用します
 interface Ticket {
   name: string;
   price: number;
   quantity: number;
+  availableQuantity: number;
+  expirationDate: string;
+  icon?: JSX.Element;
 }
 
 const DrinkTicketApp: React.FC = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [tickets, setTickets] = useState<{ [key: string]: Ticket }>({
-    glass: { name: 'グラスチケット', price: 1000, quantity: 0 },
-    bottle: { name: 'ボトルチケット', price: 5000, quantity: 0 },
+    '1000': { name: 'ドリンク', price: 1000, quantity: 0, availableQuantity: 7, expirationDate: '2025年6月末' },
+    '5000': { name: 'ボトル', price: 5000, quantity: 0, availableQuantity: 8, expirationDate: '2025年6月末' }
   })
   const [error, setError] = useState<string | null>(null)
   const [totalAmount, setTotalAmount] = useState(0)
@@ -31,10 +34,9 @@ const DrinkTicketApp: React.FC = () => {
     const isDevelopment = process.env.NODE_ENV === 'development';
     return isDevelopment ? 'dev_user_1234567888' : `user_${Math.random().toString(36).substr(2, 9)}`;
   });
-  const [email, setEmail] = useState('');
   const [purchaseHistory, setPurchaseHistory] = useState<any[]>([]);
   const [isHistoryModalOpen, setIsHistoryModalOpen] = useState(false);
-  const router = useRouter();
+  
 
   useEffect(() => {
     const newTotalAmount = Object.values(tickets).reduce((sum, ticket) => sum + ticket.price * ticket.quantity, 0)
@@ -94,7 +96,7 @@ const DrinkTicketApp: React.FC = () => {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ tickets: selectedTickets, totalAmount, userId, email }),
+        body: JSON.stringify({ tickets: selectedTickets, totalAmount, userId }),
       })
 
       const data = await response.json()
@@ -103,7 +105,7 @@ const DrinkTicketApp: React.FC = () => {
         localStorage.setItem('paymentPending', 'true');
         window.location.href = data.checkoutUrl;
       } else {
-        setError(data.error || 'チェックアウトURLの取得に失敗しました');
+        setError(data.error || 'チェックアウトURLの取得に失敗しした');
       }
     } catch (err) {
       console.error('チェックアウトプロセス中にエラーが発生しました:', err)
@@ -178,12 +180,13 @@ const DrinkTicketApp: React.FC = () => {
                         animate={{ rotate: [0, 360] }}
                         transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
                       >
-                        {key === 'bottle' ? <Wine className="h-6 w-6 text-black" /> : <GlassWater className="h-6 w-6 text-black" />}
+                        {key === '5000' ? <Wine className="h-6 w-6 text-black" /> : <GlassWater className="h-6 w-6 text-black" />}
                       </motion.div>
                       <div>
-                        <Label className="text-base sm:text-lg font-semibold text-white whitespace-nowrap">{ticket.name}</Label>
-                        <p className="text-sm text-gray-300">{formatAmount(ticket.price)}円</p>
-                        <p className="text-xs text-gray-400 whitespace-nowrap">期限: 2025年6月末</p>
+                        <Label className="text-base sm:text-lg font-semibold text-white">{ticket.name}</Label>
+                        <p className="text-sm text-gray-300">{ticket.price.toLocaleString()}円</p>
+                        <p className="text-xs text-gray-400">期限: {ticket.expirationDate}</p>
+                        <p className="text-xs text-gray-400">保有数: {ticket.availableQuantity}枚</p>
                       </div>
                     </div>
                     <div className="flex flex-col items-end space-y-2">
@@ -211,7 +214,7 @@ const DrinkTicketApp: React.FC = () => {
                           <Plus className="h-4 w-4" />
                         </Button>
                       </div>
-                      {key === 'glass' && (
+                      {key === '1000' && (
                         <div className="flex space-x-2">
                           <Button
                             onClick={() => updateQuantity(key, 50 - ticket.quantity)}
@@ -227,7 +230,7 @@ const DrinkTicketApp: React.FC = () => {
                           </Button>
                         </div>
                       )}
-                      {key === 'bottle' && (
+                      {key === '5000' && (
                         <div className="flex space-x-2">
                           <Button
                             onClick={() => updateQuantity(key, 10 - ticket.quantity)}
@@ -272,7 +275,7 @@ const DrinkTicketApp: React.FC = () => {
             <DialogTitle>最近の購入履歴（直近5件）</DialogTitle>
             <div className="py-4 max-h-[60vh] overflow-y-auto">
               {purchaseHistory.length > 0 ? (
-                purchaseHistory.slice(0, 5).map((purchase, index) => (
+                purchaseHistory.slice(0, 5).map((purchase) => (
                   <div key={purchase.id} className="p-4 bg-gray-900 rounded-lg mb-4">
                     <p>注文ID: {purchase.id}</p>
                     <p>日時: {new Date(purchase.createdAt).toLocaleString()}</p>

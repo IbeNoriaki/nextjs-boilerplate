@@ -63,7 +63,7 @@ export async function POST(request: Request) {
       throw new Error('Failed to create initial payment link');
     }
 
-    const initialCheckoutUrl = response.result.paymentLink.url;
+    
     const paymentLinkId = response.result.paymentLink.id;
     const orderId = response.result.paymentLink.orderId;
 

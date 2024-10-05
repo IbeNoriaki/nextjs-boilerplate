@@ -105,9 +105,7 @@ const UseTicketButton: React.FC = () => {
                 {Object.entries(tickets).map(([price, ticket]) => (
                   <motion.div
                     key={price}
-                    className={`bg-gray-900 p-4 rounded-xl shadow-sm transition duration-300 ease-in-out hover:shadow-md border ${
-                      activeTicket === null || activeTicket === price ? 'border-gray-700' : 'border-gray-800 opacity-50'
-                    }`}
+                    className="bg-gray-900 p-4 rounded-xl shadow-sm transition duration-300 ease-in-out hover:shadow-md border border-gray-700"
                     whileHover={{ scale: 1.02 }}
                   >
                     <div className="flex items-center justify-between">
@@ -117,12 +115,13 @@ const UseTicketButton: React.FC = () => {
                           animate={{ rotate: [0, 360] }}
                           transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
                         >
-                          {ticket.icon}
+                          {price === '5000' ? <Wine className="h-6 w-6 text-black" /> : <GlassWater className="h-6 w-6 text-black" />}
                         </motion.div>
                         <div>
                           <Label className="text-base sm:text-lg font-semibold text-white">{ticket.name}</Label>
-                          <p className="text-sm text-gray-300">{ticket.price}円</p>
+                          <p className="text-sm text-gray-300">{ticket.price.toLocaleString()}円</p>
                           <p className="text-xs text-gray-400">期限: {ticket.expirationDate}</p>
+                          <p className="text-xs text-gray-400">保有数: {ticket.availableQuantity}枚</p>
                         </div>
                       </div>
                       <div className="flex flex-col items-end space-y-2">
