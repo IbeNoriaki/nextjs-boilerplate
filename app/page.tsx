@@ -1,11 +1,11 @@
 'use client';
 import React from 'react';
 import Image from "next/image";
-import { ConnectToReceiveButton } from './components/ConnectToReceiveButton';
 import DrinkTicketApp from './components/DrinkTicketApp';
 import DrinkTicketSender from "./components/drink-ticket-sender";
 import { SpecificTradeInfoPopup } from './components/SpecificTradeInfoPopup';
 import UseTicketButton from './components/use-ticket-button';
+import TicketHistoryButton from './components/TicketHistoryButton';
 
 export default function Home() {
   return (
@@ -36,7 +36,8 @@ export default function Home() {
           <DrinkTicketApp />
           <DrinkTicketSender />
           <UseTicketButton />
-          <ConnectToReceiveButton />
+          <TicketHistoryButton />
+         
         </div>
       </main>
       <footer className="row-start-3 flex justify-center">
