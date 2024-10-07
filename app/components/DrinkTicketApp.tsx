@@ -1,16 +1,13 @@
 'use client'
 
-import React, { useState, useEffect, useCallback } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
-import { Button } from "@/components/ui/button"
+import React, { useState, useEffect } from 'react'
+import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogFooter, DialogTitle, DialogDescription } from "@/components/ui/dialog"
-import { Label } from "@/components/ui/label"
-import { AlertCircle, GlassWater, Wine, Plus, Minus } from 'lucide-react'
+import { AlertCircle, GlassWater, Wine } from 'lucide-react'
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import SquareCheckoutButton from './SquareCheckoutButton'
 import TicketItem from './TicketItem'
-
-
+import { AnimatePresence } from 'framer-motion'
 
 // 既存の Ticket インターフェース定義をそのまま使用します
 interface Ticket {
@@ -24,9 +21,13 @@ interface Ticket {
 
 const DrinkTicketApp: React.FC = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false)
-  const [tickets, setTickets] = useState<{ [key: string]: Ticket }>({
+  const [tickets, _setTickets] = useState<{ [key: string]: Ticket }>({
     '1000': { name: 'ドリンク', price: 1000, quantity: 0, availableQuantity: 7, expirationDate: '2025年6月末', icon: <GlassWater className="h-6 w-6" aria-hidden="true" /> },
     '5000': { name: 'ボトル', price: 5000, quantity: 0, availableQuantity: 8, expirationDate: '2025年6月末', icon: <Wine className="h-6 w-6" aria-hidden="true" /> }
+  })
+  const [purchaseQuantities, setPurchaseQuantities] = useState<{ [key: string]: number }>({
+    '1000': 0,
+    '5000': 0
   })
   const [error, setError] = useState<string | null>(null)
   const [totalAmount, setTotalAmount] = useState(0)
@@ -41,40 +42,34 @@ const DrinkTicketApp: React.FC = () => {
   
 
   useEffect(() => {
-    const newTotalAmount = Object.values(tickets).reduce((sum, ticket) => sum + ticket.price * ticket.quantity, 0)
+    const newTotalAmount = Object.entries(purchaseQuantities).reduce((sum, [price, quantity]) => sum + parseInt(price) * quantity, 0)
     setTotalAmount(newTotalAmount)
 
-    // チケットが選択されたらエラーメッセージをクリア
     if (newTotalAmount > 0) {
       setError(null)
     }
-  }, [tickets])
+  }, [purchaseQuantities])
 
   useEffect(() => {
     const paymentPending = localStorage.getItem('paymentPending');
     if (paymentPending === 'true') {
       localStorage.removeItem('paymentPending');
       setIsDialogOpen(true);
-      setError('決済が完了していません。購入を再度行ってください。');
+      setError('決済が完了していません。購入を再度行ってくさい。');
     }
   }, []);
 
   const handleQuantityChange = (price: string, change: number) => {
-    setTickets(prev => {
-      const newQuantity = Math.max(0, Math.min(prev[price].availableQuantity, prev[price].quantity + change));
-      const updatedTickets = {
-        ...prev,
-        [price]: { ...prev[price], quantity: newQuantity }
-      };
-      
-      if (newQuantity > 0) {
-        setActiveTicket(price);
-      } else if (newQuantity === 0) {
-        setActiveTicket(null);
-      }
-
-      return updatedTickets;
-    });
+    setPurchaseQuantities(prev => ({
+      ...prev,
+      [price]: Math.max(0, prev[price] + change)
+    }));
+    
+    if (purchaseQuantities[price] + change > 0) {
+      setActiveTicket(price);
+    } else if (purchaseQuantities[price] + change === 0) {
+      setActiveTicket(null);
+    }
   }
 
   const calculateTotal = () => {
@@ -82,15 +77,13 @@ const DrinkTicketApp: React.FC = () => {
   }
 
   const handleSquareCheckout = async () => {
-    const selectedTickets = Object.entries(tickets)
-      .filter(([, ticket]) => ticket.quantity > 0)
-      .map(([, ticket]) => ({
-        name: ticket.name,
-        price: ticket.price,
-        quantity: ticket.quantity
+    const selectedTickets = Object.entries(purchaseQuantities)
+      .filter(([, quantity]) => quantity > 0)
+      .map(([price, quantity]) => ({
+        name: tickets[price].name,
+        price: parseInt(price),
+        quantity: quantity
       }))
-
-    const totalAmount = calculateTotal()
 
     if (totalAmount === 0) {
       setError('チケットを選択してください')
@@ -115,7 +108,7 @@ const DrinkTicketApp: React.FC = () => {
         localStorage.setItem('paymentPending', 'true');
         window.location.href = data.checkoutUrl;
       } else {
-        setError(data.error || 'チェックアウトURLの取得に失敗しした');
+        setError(data.error || 'チェックアウトURLの取得に失敗しました');
       }
     } catch (err) {
       console.error('チェックアウトプロセス中にエラーが発生しました:', err)
@@ -140,7 +133,7 @@ const DrinkTicketApp: React.FC = () => {
         console.log('Successfully set purchase history'); // 追加: 成功メッセージ
       } else {
         console.error('No orders found in the response'); // 追加: エラーメッセージ
-        setError('購入履歴の取得に失敗しました');
+        setError('購履歴の取得に失敗しました');
       }
     } catch (error) {
       console.error('Failed to fetch payment history:', error);
@@ -172,9 +165,10 @@ const DrinkTicketApp: React.FC = () => {
                   <TicketItem
                     key={price}
                     price={price}
-                    ticket={ticket}
+                    ticket={{...ticket, quantity: purchaseQuantities[price]}}
                     activeTicket={activeTicket}
                     onQuantityChange={handleQuantityChange}
+                    isBuying={true}
                   />
                 ))}
               </div>

@@ -15,9 +15,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
-import * as ScrollAreaPrimitive from '@radix-ui/react-scroll-area'
 import { ScrollArea } from "@/components/ui/scroll-area"
-import { X } from 'lucide-react'
+
 
 interface HistoryItem {
   id: string
