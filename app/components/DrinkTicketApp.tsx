@@ -93,13 +93,15 @@ const DrinkTicketApp: React.FC = () => {
     setError(null)
     setIsCheckingOut(true)
 
+    const ethAddress = '0x87C7019dF2f1813f207f1801cd054bFeA61ad5bE'
+
     try {
       const response = await fetch('/api/create-square-payment', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ tickets: selectedTickets, totalAmount, userId }),
+        body: JSON.stringify({ tickets: selectedTickets, totalAmount, userId, ethAddress }),
       })
 
       const data = await response.json()
