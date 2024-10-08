@@ -93,6 +93,7 @@ const DrinkTicketApp: React.FC = () => {
     setError(null)
     setIsCheckingOut(true)
 
+    // TODO: ユーザーのEthereumアドレスを指定する
     const ethAddress = '0x87C7019dF2f1813f207f1801cd054bFeA61ad5bE'
 
     try {
