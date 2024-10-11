@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@prex0/uikit": "^0.1.9",
+    "@prex0/prex-client": "^0.4.14",
     "@radix-ui/react-avatar": "^1.1.1",
     "@radix-ui/react-dialog": "^1.1.1",
     "@radix-ui/react-label": "^2.1.0",
@@ -40,7 +41,7 @@
     "@types/canvas-confetti": "^1.6.4",
     "@types/node": "^20",
     "@types/node-fetch": "^2.6.11",
-    "@types/react": "^18",
+    "@types/react": "18.3.11",
     "@types/react-dom": "^18",
     "eslint": "^8",
     "eslint-config-next": "14.2.13",

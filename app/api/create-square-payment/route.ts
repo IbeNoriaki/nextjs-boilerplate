@@ -1,4 +1,4 @@
-import { Client, Environment } from 'square';
+import { Client, CreatePaymentLinkRequest, Environment } from 'square';
 import { randomUUID } from 'crypto';
 
 const client = new Client({
@@ -22,7 +22,7 @@ export async function POST(request: Request) {
     const body = await request.json();
     console.log('Request body:', body);
 
-    const { tickets, totalAmount, userId, email } = body; // emailを追加
+    const { tickets, totalAmount, userId, email, ethAddress } = body; // emailを追加
 
     const lineItems = tickets.map((ticket: any) => ({
       quantity: ticket.quantity.toString(),
@@ -39,13 +39,15 @@ export async function POST(request: Request) {
     console.log('Creating payment link with:', { locationId, idempotencyKey, lineItems, totalAmount });
 
     // Payment Link 作成
-    const paymentLinkParams: any = {
+    const paymentLinkParams: CreatePaymentLinkRequest = {
       idempotencyKey,
       order: {
         locationId,
         lineItems
       },
-      paymentNote: `User ID: ${userId}`,
+      paymentNote: JSON.stringify({
+        ethAddress
+      }),
     };
 
     // emailが提供されている場合のみprePopulatedDataを追加
