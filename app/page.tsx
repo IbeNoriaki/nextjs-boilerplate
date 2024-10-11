@@ -84,7 +84,7 @@ export default function Home() {
         <h1 className="text-lg sm:text-xl font-bold text-center">
           Unlock the social experience:
           <span className="block mt-1 text-white text-base sm:text-lg">
-            Drink. Share. Connect.
+            Share. Use. Connect.
           </span>
         </h1>
 
