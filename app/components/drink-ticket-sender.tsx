@@ -4,17 +4,13 @@ import React from 'react'
 import { useState } from 'react'
 import { AnimatePresence } from 'framer-motion'
 import { Button } from '@/components/ui/button'
-
-// import { Label } from '@/components/ui/label'
-
-// import { Plus, Minus } from 'lucide-react'
-
 import { Dialog, DialogContent, DialogFooter } from "@/components/ui/dialog"
 import { AlertCircle, GlassWater, Wine } from 'lucide-react'
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import confetti from 'canvas-confetti'
 import axios from 'axios'
 import TicketItem from './TicketItem'
+import { GiMedal } from 'react-icons/gi'
 
 interface Ticket {
   price: number;
@@ -28,12 +24,22 @@ interface Ticket {
 const DrinkTicketSender: React.FC = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [tickets, setTickets] = useState<{ [key: string]: Ticket }>({
-    '1000': { price: 1000, quantity: 0, icon: <GlassWater className="h-6 w-6" aria-hidden="true" />, name: 'ドリンク', availableQuantity: 7, expirationDate: '2025年6月末' },
-    '5000': { price: 5000, quantity: 0, icon: <Wine className="h-6 w-6" aria-hidden="true" />, name: 'ボトル', availableQuantity: 8, expirationDate: '2025年6月末' }
+    '300': { price: 300, quantity: 0, icon: <GlassWater className="h-6 w-6" aria-hidden="true" />, name: 'コイン', availableQuantity: 7, expirationDate: '2025年6月末' },
+    '5000': { quantity: 0, icon: <GiMedal className="h-6 w-6" />, name: 'メダル', availableQuantity: 8 }
   })
   const [error, setError] = useState('')
   const [isCreatingLink, setIsCreatingLink] = useState(false)
   const [activeTicket, setActiveTicket] = useState<string | null>(null)
+
+  const resetTickets = () => {
+    setTickets(prev => Object.fromEntries(Object.entries(prev).map(([key, ticket]) => [key, {...ticket, quantity: 0}])))
+    setActiveTicket(null)
+  }
+
+  const handleCloseDialog = () => {
+    setIsDialogOpen(false)
+    resetTickets()
+  }
 
   const handleQuantityChange = (price: string, change: number) => {
     setTickets(prev => {
@@ -100,12 +106,12 @@ const DrinkTicketSender: React.FC = () => {
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
           <path strokeLinecap="round" strokeLinejoin="round" d="M7.217 10.907a2.25 2.25 0 100 2.186m0-2.186c.18.324.283.696.283 1.093s-.103.77-.283 1.093m0-2.186l9.566-5.314m-9.566 7.5l9.566 5.314m0 0a2.25 2.25 0 103.935 2.186 2.25 2.25 0 00-3.935-2.186zm0-12.814a2.25 2.25 0 103.933-2.185 2.25 2.25 0 00-3.933 2.185z" />
         </svg>
-        Share Ticket
+        Share
       </Button>
 
       <AnimatePresence>
         {isDialogOpen && (
-          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+          <Dialog open={isDialogOpen} onOpenChange={handleCloseDialog}>
             <DialogContent className="sm:max-w-[425px] bg-black text-white rounded-2xl shadow-2xl overflow-hidden">
               <div className="py-6 space-y-6">
                 <div className="space-y-4">
@@ -116,6 +122,7 @@ const DrinkTicketSender: React.FC = () => {
                       ticket={ticket}
                       activeTicket={activeTicket}
                       onQuantityChange={handleQuantityChange}
+                      hidePrice={price === '5000'}
                     />
                   ))}
                 </div>

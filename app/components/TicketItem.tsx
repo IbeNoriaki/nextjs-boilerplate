@@ -3,12 +3,15 @@ import { motion } from 'framer-motion'
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
 import { Plus, Minus } from 'lucide-react'
+import { FaCoins } from 'react-icons/fa'
+import { GiMedal } from 'react-icons/gi'
 
 interface TicketItemProps {
   price: string;
   ticket: Ticket;
   activeTicket: string | null;
   onQuantityChange: (price: string, change: number) => void;
+  hidePrice?: boolean;
 }
 
 interface Ticket {
@@ -17,10 +20,10 @@ interface Ticket {
   icon: React.ReactElement;
   name: string;
   availableQuantity: number;
-  expirationDate: string;
+  expirationDate?: string;
 }
 
-const TicketItem: React.FC<TicketItemProps> = ({ price, ticket, activeTicket, onQuantityChange }) => {
+const TicketItem: React.FC<TicketItemProps> = ({ price, ticket, activeTicket, onQuantityChange, hidePrice = false }) => {
   const [message, setMessage] = useState<string | null>(null);
 
   const handleQuantityChange = (change: number) => {
@@ -29,6 +32,17 @@ const TicketItem: React.FC<TicketItemProps> = ({ price, ticket, activeTicket, on
       setMessage(null);
     } else {
       setMessage('チケットは一種類のみ選択可能です');
+    }
+  };
+
+  const getIcon = (price: string) => {
+    switch (price) {
+      case '300':
+        return <FaCoins className="h-6 w-6" />;
+      case '5000':
+        return <GiMedal className="h-6 w-6" />;
+      default:
+        return ticket.icon;
     }
   };
 
@@ -46,12 +60,12 @@ const TicketItem: React.FC<TicketItemProps> = ({ price, ticket, activeTicket, on
             animate={{ rotate: [0, 360] }}
             transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
           >
-            {ticket.icon}
+            {getIcon(price)}
           </motion.div>
           <div>
             <Label className="text-base sm:text-lg font-semibold text-white">{ticket.name}</Label>
-            <p className="text-sm text-gray-300">{ticket.price.toLocaleString()}円</p>
-            <p className="text-xs text-gray-400">期限: {ticket.expirationDate}</p>
+            {!hidePrice && <p className="text-sm text-gray-300">{ticket.price?.toLocaleString()}円</p>}
+            {ticket.expirationDate && <p className="text-xs text-gray-400">期限: {ticket.expirationDate}</p>}
             <p className="text-xs text-gray-400">保有数: {ticket.availableQuantity}枚</p>
           </div>
         </div>
@@ -81,14 +95,14 @@ const TicketItem: React.FC<TicketItemProps> = ({ price, ticket, activeTicket, on
               <Plus className="h-4 w-4" />
             </Button>
           </div>
-          {price === '1000' && (
+          {price === '300' && (
             <div className="flex space-x-2">
               <Button
-                onClick={() => handleQuantityChange(50 - ticket.quantity)}
+                onClick={() => handleQuantityChange(10 - ticket.quantity)}
                 className="h-6 w-12 text-xs bg-gray-700 hover:bg-gray-600 text-white rounded-full"
                 disabled={activeTicket !== null && activeTicket !== price}
               >
-                50枚
+                10枚
               </Button>
               <Button
                 onClick={() => handleQuantityChange(100 - ticket.quantity)}
@@ -107,6 +121,13 @@ const TicketItem: React.FC<TicketItemProps> = ({ price, ticket, activeTicket, on
                 disabled={activeTicket !== null && activeTicket !== price}
               >
                 10枚
+              </Button>
+              <Button
+                onClick={() => handleQuantityChange(100 - ticket.quantity)}
+                className="h-6 w-12 text-xs bg-gray-700 hover:bg-gray-600 text-white rounded-full"
+                disabled={activeTicket !== null && activeTicket !== price}
+              >
+                100枚
               </Button>
             </div>
           )}

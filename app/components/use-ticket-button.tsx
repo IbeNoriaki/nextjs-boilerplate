@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button'
 // import { Label } from '@/components/ui/label'
 // import { Loader2 } from 'lucide-react'
 // import { Plus, Minus } from 'lucide-react'
-// import { motion } from 'framer-motion'
+import { FaCoins } from 'react-icons/fa'
 import { Dialog, DialogContent, DialogFooter } from "@/components/ui/dialog"
 import { GlassWater, Wine } from 'lucide-react'
 import { AnimatePresence } from 'framer-motion'
@@ -27,62 +27,83 @@ interface Ticket {
 const UseTicketButton: React.FC = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [tickets, setTickets] = useState<{ [key: string]: Ticket }>({
-    '1000': { price: 1000, quantity: 0, icon: <GlassWater className="h-6 w-6" aria-hidden="true" />, name: 'ドリンク', availableQuantity: 7, expirationDate: '2025年6月末' },
-    '5000': { price: 5000, quantity: 0, icon: <Wine className="h-6 w-6" aria-hidden="true" />, name: 'ボトル', availableQuantity: 8, expirationDate: '2025年6月末' }
+    '300': { price: 300, quantity: 0, icon: <FaCoins className="h-6 w-6" aria-hidden="true" />, name: 'コイン', availableQuantity: 7, expirationDate: '2025年6月末' },
   })
   const [activeTicket, setActiveTicket] = useState<string | null>(null)
   const [message, setMessage] = useState<string | null>(null)
   const [error, setError] = useState('')
   const [selectedLocation, setSelectedLocation] = useState<string | null>(null)
+  const [preparationMessage, setPreparationMessage] = useState<string | null>(null)
+
+  const resetTickets = () => {
+    setTickets(prev => Object.fromEntries(Object.entries(prev).map(([key, ticket]) => [key, {...ticket, quantity: 0}])))
+    setActiveTicket(null)
+    setSelectedLocation(null)
+  }
+
+  const handleCloseDialog = () => {
+    setIsDialogOpen(false)
+    resetTickets()
+  }
 
   const locations = [
-    { name: '六本木', code: '1' },
-    { name: '大阪', code: '2' },
-    { name: '神戸', code: '3' },
-    { name: '福岡', code: '4' },
-    { name: '沖縄', code: '5' },
+    { name: '六本木', code: '1', available: true },
+    { name: '大阪', code: '2', available: false },
+    { name: '神戸', code: '3', available: false },
+    { name: '福岡', code: '4', available: true },
+    { name: '沖縄', code: '5', available: false },
   ]
+
+  const handleLocationSelect = (location: { code: string, available: boolean, name: string }) => {
+    if (location.available) {
+      setSelectedLocation(location.code)
+      setPreparationMessage(null)
+    } else {
+      setSelectedLocation(null)
+      setPreparationMessage(`${location.name}店は現在準備中です。今しばらくお待ちください。`)
+    }
+  }
 
   const handleQuantityChange = (price: string, change: number) => {
     setTickets(prev => {
-      const newQuantity = Math.max(0, Math.min(prev[price].availableQuantity, prev[price].quantity + change));
+      const newQuantity = Math.max(0, Math.min(prev[price].availableQuantity, prev[price].quantity + change))
       const updatedTickets = {
         ...prev,
         [price]: { ...prev[price], quantity: newQuantity }
-      };
+      }
       
       if (newQuantity > 0) {
-        setActiveTicket(price);
+        setActiveTicket(price)
       } else if (newQuantity === 0) {
-        setActiveTicket(null);
+        setActiveTicket(null)
       }
 
-      setMessage(null);
-      return updatedTickets;
-    });
+      setMessage(null)
+      return updatedTickets
+    })
   }
 
   const handleUseTicket = async () => {
     if (Object.values(tickets).every(ticket => ticket.quantity === 0)) {
-      setError('少なくとも1枚のチケットを選択してください。');
-      return;
+      setError('少なくとも1枚のチケットを選択してください。')
+      return
     }
     if (!selectedLocation) {
-      setError('店舗を選択してください。');
-      return;
+      setError('店舗を選択してください。')
+      return
     }
-    setError('');
+    setError('')
 
     try {
-      // ここにチケット利のロジックを実装
-      console.log('チケットを利用しました', selectedLocation);
-      setIsDialogOpen(false);
-      setTickets(prev => Object.fromEntries(Object.entries(prev).map(([key, ticket]) => [key, {...ticket, quantity: 0}])));
-      setActiveTicket(null);
-      setSelectedLocation(null);
+      // ここにチケット利用のロジックを実装
+      console.log('チケットを利用しました', selectedLocation)
+      setIsDialogOpen(false)
+      setTickets(prev => Object.fromEntries(Object.entries(prev).map(([key, ticket]) => [key, {...ticket, quantity: 0}])))
+      setActiveTicket(null)
+      setSelectedLocation(null)
     } catch (error) {
-      console.error('Error using ticket:', error);
-      setError('チケット利用中にエラーが発生しました。もう一度お試しください。');
+      console.error('Error using ticket:', error)
+      setError('チケット利用中にエラーが発生しました。もう一度お試しください。')
     }
   }
 
@@ -95,23 +116,21 @@ const UseTicketButton: React.FC = () => {
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
           <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 6v.75m0 3v.75m0 3v.75m0 3V18m-9-5.25h5.25M7.5 15h3M3.375 5.25c-.621 0-1.125.504-1.125 1.125v3.026a2.999 2.999 0 010 5.198v3.026c0 .621.504 1.125 1.125 1.125h17.25c.621 0 1.125-.504 1.125-1.125v-3.026a2.999 2.999 0 010-5.198V6.375c0-.621-.504-1.125-1.125-1.125H3.375z" />
         </svg>
-        Use Ticket
+        Use
       </Button>
 
       <AnimatePresence>
         {isDialogOpen && (
-          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+          <Dialog open={isDialogOpen} onOpenChange={handleCloseDialog}>
             <DialogContent className="sm:max-w-[425px] bg-black text-white rounded-2xl shadow-2xl overflow-hidden">
               <div className="py-6 space-y-6">
-                {Object.entries(tickets).map(([price, ticket]) => (
-                  <TicketItem
-                    key={price}
-                    price={price}
-                    ticket={ticket}
-                    activeTicket={activeTicket}
-                    onQuantityChange={handleQuantityChange}
-                  />
-                ))}
+                <TicketItem
+                  key="300"
+                  price="300"
+                  ticket={tickets['300']}
+                  activeTicket={activeTicket}
+                  onQuantityChange={handleQuantityChange}
+                />
               </div>
               {message && (
                 <p className="text-yellow-500 mt-2">{message}</p>
@@ -123,17 +142,27 @@ const UseTicketButton: React.FC = () => {
                   <AlertDescription>{error}</AlertDescription>
                 </Alert>
               )}
+              {preparationMessage && (
+                <Alert className="mt-4 bg-yellow-900 text-white">
+                  <AlertCircle className="h-4 w-4" />
+                  <AlertTitle>お知らせ</AlertTitle>
+                  <AlertDescription>{preparationMessage}</AlertDescription>
+                </Alert>
+              )}
               <div className="mt-6">
                 <div className="flex flex-wrap justify-center gap-2 mt-2">
                   {locations.map((location) => (
                     <Button
                       key={location.code}
-                      onClick={() => setSelectedLocation(location.code)}
+                      onClick={() => handleLocationSelect(location)}
                       className={`h-10 text-xs px-2 flex-grow flex-shrink-0 basis-auto max-w-[calc(20%-0.4rem)] ${
                         selectedLocation === location.code
                           ? 'bg-[#ffbc04] hover:bg-[#e5a800] text-black'
-                          : 'bg-gray-700 hover:bg-gray-600 text-white'
+                          : location.available
+                          ? 'bg-gray-700 hover:bg-gray-600 text-white'
+                          : 'bg-gray-500 text-gray-300 cursor-not-allowed'
                       } rounded-full transition-colors`}
+                      disabled={!location.available}
                     >
                       {location.name}
                     </Button>

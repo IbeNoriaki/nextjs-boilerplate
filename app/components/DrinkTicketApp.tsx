@@ -8,6 +8,8 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import SquareCheckoutButton from './SquareCheckoutButton'
 import TicketItem from './TicketItem'
 import { AnimatePresence } from 'framer-motion'
+import { FaCoins } from 'react-icons/fa'
+import { GiMedal } from 'react-icons/gi'
 
 // 既存の Ticket インターフェース定義をそのまま使用します
 interface Ticket {
@@ -21,13 +23,11 @@ interface Ticket {
 
 const DrinkTicketApp: React.FC = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false)
-  const [tickets, _setTickets] = useState<{ [key: string]: Ticket }>({
-    '1000': { name: 'ドリンク', price: 1000, quantity: 0, availableQuantity: 7, expirationDate: '2025年6月末', icon: <GlassWater className="h-6 w-6" aria-hidden="true" /> },
-    '5000': { name: 'ボトル', price: 5000, quantity: 0, availableQuantity: 8, expirationDate: '2025年6月末', icon: <Wine className="h-6 w-6" aria-hidden="true" /> }
+  const [tickets, setTickets] = useState<{ [key: string]: Ticket }>({
+    '300': { price: 300, quantity: 0, icon: <FaCoins className="h-6 w-6" />, name: 'コイン', availableQuantity: 7, expirationDate: '2025年6月末' },
   })
   const [purchaseQuantities, setPurchaseQuantities] = useState<{ [key: string]: number }>({
-    '1000': 0,
-    '5000': 0
+    '300': 0,
   })
   const [error, setError] = useState<string | null>(null)
   const [totalAmount, setTotalAmount] = useState(0)
@@ -40,6 +40,18 @@ const DrinkTicketApp: React.FC = () => {
   const [isHistoryModalOpen, setIsHistoryModalOpen] = useState(false);
   const [activeTicket, setActiveTicket] = useState<string | null>(null);
   
+
+  const resetPurchaseQuantities = () => {
+    setPurchaseQuantities({
+      '300': 0,
+    })
+    setActiveTicket(null)
+  }
+
+  const handleCloseDialog = () => {
+    setIsDialogOpen(false)
+    resetPurchaseQuantities()
+  }
 
   useEffect(() => {
     const newTotalAmount = Object.entries(purchaseQuantities).reduce((sum, [price, quantity]) => sum + parseInt(price) * quantity, 0)
@@ -150,27 +162,25 @@ const DrinkTicketApp: React.FC = () => {
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
           <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 8.25h19.5M2.25 9h19.5m-16.5 5.25h6m-6 2.25h3m-3.75 3h15a2.25 2.25 0 002.25-2.25V6.75A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25v10.5A2.25 2.25 0 004.5 19.5z" />
         </svg>
-        Buy Ticket
+        Buy
       </Button>
 
       <AnimatePresence>
         {isDialogOpen && (
-          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+          <Dialog open={isDialogOpen} onOpenChange={handleCloseDialog}>
             <DialogContent className="sm:max-w-[500px] md:max-w-[600px] bg-black text-white rounded-2xl shadow-2xl overflow-hidden" aria-describedby="dialog-description">
               <DialogDescription id="dialog-description" className="sr-only">
                 このダイアログではチケットの購入と購入履歴の確認ができます。
               </DialogDescription>
               <div className="py-6 space-y-6">
-                {Object.entries(tickets).map(([price, ticket]) => (
-                  <TicketItem
-                    key={price}
-                    price={price}
-                    ticket={{...ticket, quantity: purchaseQuantities[price]}}
-                    activeTicket={activeTicket}
-                    onQuantityChange={handleQuantityChange}
-                    isBuying={true}
-                  />
-                ))}
+                <TicketItem
+                  key="300"
+                  price="300"
+                  ticket={{...tickets['300'], quantity: purchaseQuantities['300']}}
+                  activeTicket={activeTicket}
+                  onQuantityChange={handleQuantityChange}
+                  isBuying={true}
+                />
               </div>
               {error && (
                 <Alert variant="destructive" className="mt-4 bg-red-900 text-white">
@@ -208,7 +218,7 @@ const DrinkTicketApp: React.FC = () => {
                       <p>日時: {new Date(purchase.createdAt).toLocaleString()}</p>
                       <p>合計: {formatAmount(purchase.totalMoney.amount)}円</p>
                       {purchase.tenders && purchase.tenders[0] && (
-                        <p>メモ: {purchase.tenders[0].note || 'なし'}</p>
+                        <p>モ: {purchase.tenders[0].note || 'なし'}</p>
                       )}
                       <ul className="mt-2">
                         {purchase.lineItems.map((item, itemIndex) => (
