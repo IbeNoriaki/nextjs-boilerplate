@@ -11,7 +11,7 @@ export default function Home() {
 
   const fetchMedalCount = async () => {
     // Placeholder: Replace with actual API call
-    return 0;
+    return 5;
   };
 
   useEffect(() => {
@@ -23,13 +23,13 @@ export default function Home() {
   }, []);
 
   const getMedalSrc = (count: number) => {
-    if (count >= 9) return "/asset/medal_9.svg";
-    return `/asset/medal_${count}.svg`;
+    if (count >= 5) return "/asset/rank5.png";
+    return `/asset/rank${count}.png`;
   };
 
   const getNextMedalSrc = (count: number) => {
-    if (count >= 8) return "/asset/medal_9.svg";
-    return `/asset/medal_${count + 1}.svg`;
+    if (count >= 4) return "/asset/rank5.png";
+    return `/asset/rank${count + 1}.png`;
   };
 
   return (
@@ -59,11 +59,11 @@ export default function Home() {
               />
               {medalCount === 0 && (
                 <div className="absolute inset-0 flex items-center justify-center">
-                  <span className="text-2xl font-bold text-gray-800">No Medal</span>
+                  <span className="text-2xl font-bold text-gray-800">No Glass</span>
                 </div>
               )}
             </div>
-            {medalCount < 9 && (
+            {medalCount < 5 && (
               <div className="absolute bottom-0 right-0 flex flex-col items-center transform translate-x-[30%]">
                 <Image
                   src={getNextMedalSrc(medalCount)}
@@ -72,7 +72,7 @@ export default function Home() {
                   height={16.5}
                   className="opacity-50"
                 />
-                <span className="text-[10px] sm:text-xs font-bold mt-1">Next: {medalCount + 1}</span>
+                <span className="text-[10px] sm:text-xs font-bold mt-1">Next: </span>
               </div>
             )}
           </div>

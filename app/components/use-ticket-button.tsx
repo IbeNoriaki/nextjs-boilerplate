@@ -56,12 +56,13 @@ const UseTicketButton: React.FC = () => {
 
   const handleLocationSelect = (location: { code: string, available: boolean, name: string }) => {
     if (location.available) {
-      setSelectedLocation(location.code)
-      setPreparationMessage(null)
+      setSelectedLocation(location.code);
+      setPreparationMessage(null);
     } else {
-      setSelectedLocation(null)
-      setPreparationMessage(`${location.name}店は現在準備中です。今しばらくお待ちください。`)
+      setSelectedLocation(null);
+      setPreparationMessage(`${location.name}店は現在準備中です。今しばらくお待ちください。`);
     }
+    setError('');
   }
 
   const handleQuantityChange = (price: string, change: number) => {
@@ -162,7 +163,6 @@ const UseTicketButton: React.FC = () => {
                           ? 'bg-gray-700 hover:bg-gray-600 text-white'
                           : 'bg-gray-500 text-gray-300 cursor-not-allowed'
                       } rounded-full transition-colors`}
-                      disabled={!location.available}
                     >
                       {location.name}
                     </Button>
